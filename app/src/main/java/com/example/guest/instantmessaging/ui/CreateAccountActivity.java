@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -98,6 +99,7 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
                         mAuthProgressDialog.dismiss();
                         if(task.isSuccessful()) {
                             Log.d(TAG, "Authentication successful");
+                            createFirebaseUserProfile(task.getResult().getUser());
                         } else {
                             Toast.makeText(CreateAccountActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
@@ -153,6 +155,23 @@ public class CreateAccountActivity extends AppCompatActivity implements View.OnC
         mAuthProgressDialog.setTitle("Loading...");
         mAuthProgressDialog.setMessage("Authenticating with Firebase...");
         mAuthProgressDialog.setCancelable(false);
+    }
+
+    private void createFirebaseUserProfile(final FirebaseUser user) {
+
+        UserProfileChangeRequest addProfileName = new UserProfileChangeRequest.Builder()
+                .setDisplayName(mName)
+                .build();
+
+        user.updateProfile(addProfileName)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            Log.d(TAG, user.getDisplayName());
+                        }
+                    }
+                });
     }
 
 }
